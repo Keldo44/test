@@ -6,11 +6,11 @@ $_SESSION['usuario'];
 $_SESSION['admin'];
 
 
-
+/*
 $nombre = $_GET['nombre'];
 $precio = $_GET['precio'];
 $cantidad = $_GET['cantidad'];
-$descripcion = $_GET['descripcion'];
+$descripcion = $_GET['descripcion'];*/
 $buscador = NULL;
 
 $servidor="localhost";
@@ -52,7 +52,7 @@ $con=mysqli_connect($servidor,$usuario,$password,$bd);
                 <a href="carrito.php" style="padding-right:5%"><i class="fa fa-cart-plus" aria-hidden="true" style="color:white;font-size:40px;padding-right:5%"></i></a>
                 <form class="d-flex">
                   <input class="form-control me-2" type="search" placeholder="Buscador por ID o nombre" name="buscador" aria-label="Buscador por ID">
-                  <button class="btn btn-outline-light" type="submit" name="" style="margin-right:10px ;">Buscar</button>
+                  <button class="btn btn-outline-light" type="submit" name="buscador" style="margin-right:10px ;">Buscar</button>
                 </form>
                 <button class="delete btn btn-outline-light" type="submit"><a style="text-decoration: none; color:white" onclick="cerrarSesion(event)" 
                 href="Login.php">Logout</a></button>
@@ -69,21 +69,24 @@ $con=mysqli_connect($servidor,$usuario,$password,$bd);
           <th>Descripción</th>
         </tr>
         <?php
-        $buscador = $_GET['buscador']; 
+        //$buscador = $_GET['buscador']; 
         //var_dump($buscador);
-        if($buscador != NULL ||  $buscador != ""){
+        if(isset($_GET["buscador"])){
+          $buscador = $n_usuario;
           buscador($con,$buscador);
         }else{
           //var_dump($_GET['buscador']);
-          $sql2="SELECT * FROM `carrito`,`usuarios`,`productos` WHERE carrito.usuario = usuarios.Nombre AND carrito.id = productos.id";
-          var_dump($sql2);
+          $sql2="SELECT carrito.id, usuarios.Nombre, carrito.cant FROM `carrito`,`usuarios`,`productos` WHERE usuarios.id = 8 AND carrito.idusuario = usuarios.Nombre AND carrito.id = productos.id";
+          //var_dump($sql2);
           $consulta=mysqli_query($con,$sql2);
+          var_dump($consulta);
           while($fila=$consulta->fetch_assoc()){
             echo "<tr>";
-            echo "<td>".$fila["id"]."</td>";
-            echo "<td>".$fila["nombre"]."</td>";
-            echo "<td>".$fila["descripcion"]."</td>";
+            echo "<td>".$fila["carrito.id"]."</td>";
+            echo "<td>".$fila["usuarios.Nombre"]."</td>";
+            echo "<td>".$fila["carrito.cant"]."</td>";
             echo "</tr>";
+            var_dump($fila);
           }
         }
         ?>

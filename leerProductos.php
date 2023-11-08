@@ -6,11 +6,11 @@ $_SESSION['usuario'];
 $_SESSION['admin'];
 
 
-
+/*
 $nombre = $_GET['nombre'];
 $precio = $_GET['precio'];
 $cantidad = $_GET['cantidad'];
-$descripcion = $_GET['descripcion'];
+$descripcion = $_GET['descripcion'];*/
 $buscador = NULL;
 
 $servidor="localhost";
@@ -159,7 +159,7 @@ if($_SESSION['admin'] == 1){
             <th>Añadir al carro</th>
           </tr>
           <?php
-          $buscador = $_GET['buscador']; 
+          //$buscador = $_GET['buscador']; 
           //var_dump($buscador);
           if($buscador != NULL ||  $buscador != ""){
             buscador($con,$buscador);
