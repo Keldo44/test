@@ -79,10 +79,11 @@ if($_SESSION['admin'] == 1){
               <th>Descripción</th>
             </tr>
             <?php
-            $buscador = $_GET['buscador']; 
+
             //var_dump($buscador);
-            if($buscador != NULL ||  $buscador != ""){
-              buscador($con,$buscador);
+            if(isset($_GET['buscador'])){
+                $buscador = $_GET['buscador'];
+                buscador($con,$buscador);
             }else{
               //var_dump($_GET['buscador']);
               $sql2="SELECT * FROM `productos`";

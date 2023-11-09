@@ -49,18 +49,51 @@
 
 <?php
 session_start();
-$iduser = $_SESSION["usuario"];
-/*$_SESSION["id"];
-$id = $_GET['id'];
-$nombre = $_GET['nombre'];
-$precio = $_GET['precio'];
-$cantidad = $_GET['cantidad'];
-$descripcion = $_GET['descripcion'];
-$n_usuario = $_GET['usuario'];
-$pass = $_GET['pass'];
-$email = $_GET['email'];
-$apellidos = $_GET['apellidos'];
-*/
+
+if (isset($_SESSION["usuario"])){
+    $iduser = $_SESSION["usuario"];
+}
+if (isset($_SESSION["id"])) {
+    $id = $_SESSION["id"];
+}
+
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+}
+
+if (isset($_GET['nombre'])) {
+    $nombre = $_GET['nombre'];
+}
+
+if (isset($_GET['precio'])) {
+    $precio = $_GET['precio'];
+}
+
+if (isset($_GET['cantidad'])) {
+    $cantidad = $_GET['cantidad'];
+}
+
+if (isset($_GET['descripcion'])) {
+    $descripcion = $_GET['descripcion'];
+}
+
+if (isset($_GET['usuario'])) {
+    $n_usuario = $_GET['usuario'];
+}
+
+if (isset($_GET['pass'])) {
+    $pass = $_GET['pass'];
+}
+
+if (isset($_GET['email'])) {
+    $email = $_GET['email'];
+}
+
+if (isset($_GET['apellidos'])) {
+    $apellidos = $_GET['apellidos'];
+}
+
+
 $servidor = "localhost";
 $usuario = "root";
 $password = "";
@@ -139,7 +172,7 @@ if (!$con) {
           header('Location: login.php');
           exit();
      } elseif (isset($_GET['btnCarro'])) {
-          $sqlVerificacion = "SELECT * FROM `carrito` WHERE id = '" . $_GET['btnCarro'] . "' AND idusuario = '" . $_SESSION['id'] . "'";
+          $sqlVerificacion = "SELECT * FROM `carrito` WHERE id = '" . $_GET['btnCarro'] . "' AND idusuario = '" . $_SESSION['id'] ."'";
           $consultaVerificacion = mysqli_query($con, $sqlVerificacion);
 
           if (mysqli_num_rows($consultaVerificacion) > 0) {
@@ -151,7 +184,7 @@ if (!$con) {
                $consultaActualizacion = mysqli_query($con, $sqlActualizacion);
           } else {
                // El producto no existe en el carrito, por lo que lo insertamos
-               $sqlCarro = "INSERT INTO `carrito` (`id`, `idusuario`, cant) VALUES ('" . $_GET['btnCarro'] . "', '" . $_SESSION['id'] . "', 1')";
+               $sqlCarro = "INSERT INTO `carrito` (`id`, `idusuario`, cant) VALUES ('" . $_GET['btnCarro'] . "', '" . $_SESSION['id'] . "', 1)";
                $consultaCarro = mysqli_query($con, $sqlCarro);
           }
           echo "<script>";
