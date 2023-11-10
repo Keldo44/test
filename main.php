@@ -3,7 +3,7 @@ session_start();
 $_SESSION["id"];
 $_SESSION['usuario'];
 $_SESSION['admin'];
-var_dump($_SESSION);
+
 
 if($_SESSION['admin'] == 1){
     ?>
@@ -67,7 +67,7 @@ if($_SESSION['admin'] == 1){
                     <input type="text" class="form-control" id="descripcion" placeholder="Descripcion" name="descripcion">
                 </div>
                 <div class="mb-3 row" style="justify-content:center">
-                    <button type="submit" class="btn btn-dark col-6" name = "insertBtn" >Enviar</button>
+                    <button type="submit" class="btn btn-dark col-6" name = "insertBtn">Enviar</button>
                 <div>
             </form>
         </div>

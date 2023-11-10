@@ -110,7 +110,14 @@ if (!$con) {
      if (isset($_GET['updateBtn'])) {
 
           mysqli_set_charset($con, "utf8");
-          $sql = "UPDATE `productos` SET `nombre`='$nombre', `precio` = '$precio', `cantidad` = '$cantidad', `descripcion` = '$descripcion' WHERE `id` = '$id'";
+          $items="";
+          if($nombre){$items = $items.", `nombre`='$nombre' ";}
+          if($precio){$items = $items.", `precio` = $precio ";}
+          if($cantidad){$items = $items.", `cantidad` = $cantidad ";}
+          if($descripcion){$items = $items.", `descripcion` = $descripcion ";}
+          $items = substr($items, 1);
+          $sql = "UPDATE `productos` SET $items WHERE `id` = $id";
+          var_dump($sql);
           $consulta = mysqli_query($con, $sql);
           sleep(2);
           header('Location: main.php');

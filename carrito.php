@@ -72,14 +72,22 @@ $con=mysqli_connect($servidor,$usuario,$password,$bd);
         //var_dump($buscador);
         if(isset($_GET["buscador"])){
           $buscador = $_GET["buscador"];
-          $sql2="SELECT p.nombre,c.id,c.cant FROM `carrito` AS c,`USUARIOS`  AS u, `productos` AS p WHERE p.id='$_GET[buscador]' OR p.nombre= '$_GET[buscador]' AND p.id=c.id AND c.idusuario = u.id AND c.idusuario=$_SESSION[id]";
+          $sql2="SELECT p.nombre,c.id,c.cant FROM `carrito` AS c,`USUARIOS`  AS u, `productos` AS p WHERE p.id=$_GET[buscador] OR p.nombre= '$_GET[buscador]' AND p.id=c.id AND c.idusuario = u.id AND c.idusuario=$_SESSION[id]";
           //buscador($con,$buscador);
+          $consulta=mysqli_query($con,$sql2);
+          //var_dump($consulta);
+          while($fila=$consulta->fetch_assoc()){
+              echo "<tr>";
+              echo "<td>".$fila["nombre"]."</td>";
+              echo "<td>".$fila["cant"]."</td>";
+              echo "</tr>";
+
+          }
         }else{
           //var_dump($_GET['buscador']);
           $sql2="SELECT p.nombre,c.id,c.cant FROM `carrito` AS c,`USUARIOS`  AS u, `productos` AS p WHERE p.id=c.id AND c.idusuario = u.id AND c.idusuario=$_SESSION[id]";
           //var_dump($sql2);
-        }
-        $consulta=mysqli_query($con,$sql2);
+          $consulta=mysqli_query($con,$sql2);
         //var_dump($consulta);
         while($fila=$consulta->fetch_assoc()){
             echo "<tr>";
@@ -88,6 +96,8 @@ $con=mysqli_connect($servidor,$usuario,$password,$bd);
             echo "</tr>";
 
         }
+        }
+        
         ?>
       </tbody>
     </table>
