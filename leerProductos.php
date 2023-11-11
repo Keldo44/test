@@ -45,16 +45,19 @@ if($_SESSION['admin'] == 1){
                 <div class="collapse navbar-collapse" id="navbarColor01">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                       <li class="nav-item">
-                          <a class="nav-link active" aria-current="page" href="main.php">Home</a>
+                          <a class="nav-link" aria-current="page" href="main.php">Home</a>
                       </li>
                       <li class="nav-item">
-                          <a class="nav-link" href="leerProductos.php">Leer productos</a>
+                          <a class="nav-link  active" href="leerProductos.php">Leer productos</a>
                       </li>
                       <li class="nav-item">
                           <a class="nav-link" href="actualizarProductos.php">Actualizar productos</a>
                       </li>
                       <li class="nav-item">
                           <a class="nav-link" href="borrarProductos.php">Borrar productos</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="actualizarUsuarios.php">Usuarios</a>
                       </li>
                     </ul>
                     <form class="d-flex">
@@ -69,6 +72,11 @@ if($_SESSION['admin'] == 1){
       <div class="container mt-3">
       <h1 style="text-align:center">Listado de productos</h1>
       <h3 style="text-align:center">Si desea añadir al carrito presione en cualquiera de las filas</h3>
+      <?php 
+      $sort = 'ASC';
+      echo"
+      <a href='?order=price&&sort=$sort'>Precio</a>
+      ".'
         <table class="table table-dark table-hover">
           <tbody>
             <tr>
@@ -77,27 +85,28 @@ if($_SESSION['admin'] == 1){
               <th>Cantidad</th>
               <th>Precio</th>
               <th>Descripción</th>
-            </tr>
-            <?php
-
+            </tr>';
+           
             //var_dump($buscador);
-            if(isset($_GET['buscador'])){
-                $buscador = $_GET['buscador'];
-                buscador($con,$buscador);
+            if(isset($_GET['sort'])){
+              $sort = $_GET['sort'];
+              $order = 'precio';
+              $sql2="SELECT * FROM `productos` ORDER BY $order $sort";
+              buscador($con,$buscador);
             }else{
               //var_dump($_GET['buscador']);
               $sql2="SELECT * FROM `productos`";
-              $consulta=mysqli_query($con,$sql2);
+            }
+            $consulta=mysqli_query($con,$sql2);
               while($fila=$consulta->fetch_assoc()){
                   echo "<tr>";
                   echo "<td>".$fila["id"]."</td>";
                   echo "<td>".$fila["nombre"]."</td>";
                   echo "<td>".$fila["cantidad"]."</td>";
                   echo "<td>".$fila["precio"]."</td>";
-                  echo "<td>".$fila["descripcion"]."</td>";
+                  echo "<td>".$fila["id_category"]."</td>";
                   echo "</tr>";
               }
-            }
             ?>
           </tbody>
         </table>
@@ -148,45 +157,49 @@ if($_SESSION['admin'] == 1){
       </nav>
     <div class="container mt-3">
     <h1 style="text-align:center">Listado de productos</h1>
-    <h3 style="text-align:center">Si desea añadir al carrito presione en cualquiera de las filas</h3>
-      <table class="table table-dark table-hover">
-        <tbody>
-          <tr>
-            <th>ID Producto</th>
-            <th>Nombre Producto</th>
-            <th>Cantidad</th>
-            <th>Precio</th>
-            <th>Descripción</th>
-            <th>Añadir al carro</th>
-          </tr>
-          <?php
-          //$buscador = $_GET['buscador']; 
-          //var_dump($buscador);
-          if($buscador != NULL ||  $buscador != ""){
-            buscador($con,$buscador);
-          }else{
+    <?php
+    $sort = 'ASC';
+    echo"
+      <a href='?order=price&&sort=$sort'>Precio</a>
+      ".'
+        <table class="table table-dark table-hover">
+          <tbody>
+            <tr>
+              <th>ID Producto</th>
+              <th>Nombre Producto</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
+              <th>Descripción</th>
+            </tr>';
+           
+            //var_dump($buscador);
+            if(isset($_GET['sort'])){
+              $sort = $_GET['sort'];
+              $order = 'precio';
+              $sql2="SELECT * FROM `productos` ORDER BY $order $sort";
+            }else{
             //var_dump($_GET['buscador']);
             $sql2="SELECT * FROM `productos`";
-            $consulta=mysqli_query($con,$sql2);
-            while($fila=$consulta->fetch_assoc()){
-              ?>
-              <form action="consultas.php" method="get">
-                <tr>
-                <td><?=$fila['id']?></td>
-                <td><?=$fila['nombre']?></td>
-                <td><?=$fila['cantidad']?></td>
-                <td><?=$fila['precio']?></td>
-                <td><?=$fila['descripcion']?></td>
-                <td>
-                  <button type="submit" style="color:black;font-size:20px;padding-right:5%" 
-                    value = "<?=$fila['id']?>" iduser = "<?=$_SESSION['usuario']?>" name="btnCarro">
-                    Añadir
-                  </button>
-                </td>
-                </tr>
-              <from>
-              <?php
-            }
+          }
+          $consulta=mysqli_query($con,$sql2);
+          while($fila=$consulta->fetch_assoc()){
+            ?>
+            <form action="consultas.php" method="get">
+              <tr>
+              <td><?=$fila['id']?></td>
+              <td><?=$fila['nombre']?></td>
+              <td><?=$fila['cantidad']?></td>
+              <td><?=$fila['precio']?></td>
+              <td><?=$fila['id_category']?></td>
+              <td>
+                <button type="submit" style="color:black;font-size:20px;padding-right:5%" 
+                  value = "<?=$fila['id']?>" iduser = "<?=$_SESSION['usuario']?>" name="btnCarro">
+                  Añadir
+                </button>
+              </td>
+              </tr>
+            <from>
+            <?php
           }
           ?>
         </tbody>

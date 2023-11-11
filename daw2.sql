@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 09-11-2023 a las 22:06:42
--- Versión del servidor: 10.4.28-MariaDB
--- Versión de PHP: 8.0.28
+-- Tiempo de generación: 11-11-2023 a las 20:46:35
+-- Versión del servidor: 10.4.22-MariaDB
+-- Versión de PHP: 7.4.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -38,8 +38,20 @@ CREATE TABLE `carrito` (
 --
 
 INSERT INTO `carrito` (`id`, `idusuario`, `cant`) VALUES
-(2, 8, 2),
-(3, 8, 1);
+(2, 8, 3),
+(3, 8, 3),
+(4, 8, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `categoria`
+--
+
+CREATE TABLE `categoria` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -52,17 +64,17 @@ CREATE TABLE `productos` (
   `nombre` varchar(50) CHARACTER SET utf32 COLLATE utf32_spanish2_ci NOT NULL,
   `precio` int(11) NOT NULL,
   `cantidad` int(11) NOT NULL,
-  `descripcion` varchar(300) NOT NULL
+  `id_category` int(9) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 --
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id`, `nombre`, `precio`, `cantidad`, `descripcion`) VALUES
-(2, 'pescado', 3424, 2423, 'fkgaishjggnka'),
-(3, 'faf', 123, 14, 'adfdafdasf'),
-(4, 'xarus', 123, 123, 'xaro');
+INSERT INTO `productos` (`id`, `nombre`, `precio`, `cantidad`, `id_category`) VALUES
+(2, 'pescado', 3424, 2423, 0),
+(3, 'faf', 123, 14, 0),
+(4, 'xarus', 123, 123, 0);
 
 -- --------------------------------------------------------
 
@@ -72,12 +84,12 @@ INSERT INTO `productos` (`id`, `nombre`, `precio`, `cantidad`, `descripcion`) VA
 
 CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL,
-  `usuario` varchar(250) NOT NULL,
-  `pass` varchar(250) NOT NULL,
+  `usuario` varchar(250) COLLATE utf8_spanish2_ci NOT NULL,
+  `pass` varchar(250) COLLATE utf8_spanish2_ci NOT NULL,
   `admin` int(11) NOT NULL,
-  `nombre` varchar(250) NOT NULL,
-  `apellidos` varchar(250) NOT NULL,
-  `email` varchar(300) NOT NULL
+  `nombre` varchar(250) COLLATE utf8_spanish2_ci NOT NULL,
+  `apellidos` varchar(250) COLLATE utf8_spanish2_ci NOT NULL,
+  `email` varchar(300) COLLATE utf8_spanish2_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish2_ci;
 
 --
@@ -85,9 +97,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id`, `usuario`, `pass`, `admin`, `nombre`, `apellidos`, `email`) VALUES
-(6, 'Toni', '7110eda4d09e062aa5e4a390b0a572ac0d2c0220', 1, 'Toni', 'Chiquero', 'toni@mail.com'),
-(7, 'User', 'a12bf2c17c422acccb707fa811f07e743a9293d8', 0, 'User', 'usuarios', 'user@mail.com'),
-(8, 'keldo', '7110eda4d09e062aa5e4a390b0a572ac0d2c0220', 0, 'Ivan', 'Oritga Aguilar', 'wkijpo@gmail.com');
+(9, 'admin', 'dd94709528bb1c83d08f3088d4043f4742891f4f', 1, 'Administrador', 'Administrador', 'admin@test.com');
 
 --
 -- Índices para tablas volcadas
@@ -97,6 +107,12 @@ INSERT INTO `usuarios` (`id`, `usuario`, `pass`, `admin`, `nombre`, `apellidos`,
 -- Indices de la tabla `carrito`
 --
 ALTER TABLE `carrito`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `categoria`
+--
+ALTER TABLE `categoria`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -119,7 +135,13 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `carrito`
 --
 ALTER TABLE `carrito`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT de la tabla `categoria`
+--
+ALTER TABLE `categoria`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
@@ -131,7 +153,7 @@ ALTER TABLE `productos`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

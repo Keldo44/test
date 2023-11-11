@@ -42,8 +42,9 @@
                     });
                }
           </script>
+          
      </body>
-
+     
 </html>
 
 
@@ -53,6 +54,7 @@ session_start();
 if (isset($_SESSION["usuario"])){
     $iduser = $_SESSION["usuario"];
 }
+
 if (isset($_SESSION["id"])) {
     $id = $_SESSION["id"];
 }
@@ -83,6 +85,9 @@ if (isset($_GET['usuario'])) {
 
 if (isset($_GET['pass'])) {
     $pass = $_GET['pass'];
+}
+if(isset($_GET['admin'])){
+     $admin = $_GET['admin'];     
 }
 
 if (isset($_GET['email'])) {
@@ -197,6 +202,35 @@ if (!$con) {
           echo "<script>";
           echo "addCart(event);";
           echo "</script>";
+     } elseif (isset($_GET['updateUserBtn'])) {
+          
+          mysqli_set_charset($con, "utf8");
+          $items="";
+          if($n_usuario){$items = $items.", `usuario`='$n_usuario' ";}
+          if(isset($admin)){$items = $items.", `admin`= $admin";}
+          if($nombre){$items = $items.", `nombre`='$nombre' ";}
+          if($apellidos){$items = $items.", `apellidos` = '$apellidos' ";}
+          if($pass){
+               $pass = sha1($pass);
+               $items = $items.", `pass` = '$pass' ";
+          }
+          if($email){$items = $items.", `email` = '$email' ";}
+          $items = substr($items, 1);
+          $sql = "UPDATE `usuarios` SET $items WHERE `id` = $id";
+          var_dump($sql);
+          $consulta = mysqli_query($con, $sql);
+          var_dump($consulta);
+          sleep(2);
+          //header('Location: main.php');
+          exit();
+
+     } elseif (isset($_GET['borrarUserBtn'])) {
+          mysqli_set_charset($con, "utf8");
+          $sql = "DELETE FROM `usuarios` WHERE `id` = '$id'";
+          $consulta = mysqli_query($con, $sql);
+          sleep(2);
+          header('Location: main.php');
+          exit();
      }
 
 }

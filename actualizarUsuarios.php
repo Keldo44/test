@@ -2,6 +2,8 @@
 session_start();
 $_SESSION['id'];
 $_SESSION['usuario'];
+if ($_SESSION['admin'] == 1) {
+    
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,13 +39,13 @@ $_SESSION['usuario'];
                         <a class="nav-link" href="leerProductos.php">Leer productos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link  active" href="actualizarProductos.php">Actualizar productos</a>
+                        <a class="nav-link" href="actualizarProductos.php">Actualizar productos</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="borrarProductos.php">Borrar productos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="actualizarUsuarios.php">Usuarios</a>
+                        <a class="nav-link active" aria-current="page" href="actualizarUsuarios">Usuarios</a>
                     </li>
                 </ul>
                 <button class="delete btn btn-outline-light" type="submit"><a style="text-decoration: none; color:white"
@@ -51,39 +53,68 @@ $_SESSION['usuario'];
             </div>
     </nav>
     <div class="container mt-3">
-        <h2>Actualizar productos</h2>
-        <h3>Introduzca el id del registro que quiera actualizar</h3>
+        <h2>Actualizar Usuarios</h2>
+        <h3>Introduzca el id del registro que quiera <strong>actualizar</strong></h3>
         <form action="consultas.php" method="get">
             <div class="mb-3 mt-3">
                 <label for="">ID:</label>
                 <input type="number" class="form-control" id="id" placeholder="Inserte el ID" name="id">
             </div>
             <div class="mb-3 mt-3">
-                <label for="">Nombre del producto:</label>
-                <input type="text" class="form-control" id="nombre" placeholder="Nombre del producto" name="nombre">
+                <label for="">Usuario:</label>
+                <input type="text" class="form-control" id="usuario" placeholder="Usuario" name="usuario">
+            </div>
+            
+            <div class="mb-3">
+                <label for="">Admin:</label> </br>
+                <input type="hidden" name="admin" value="0">
+                <input type="checkbox" id="admin" name="admin" value="1">
+            </div>
+            <div class="mb-3 mt-3">
+                <label for="">Nombre:</label>
+                <input type="text" class="form-control" id="nombre" placeholder="Nombre" name="nombre">
             </div>
             <div class="mb-3">
-                <label for="">Precio del producto:</label>
-                <input type="number" class="form-control" id="precio" placeholder="Precio del producto" name="precio">
+                <label for="">Apellidos:</label>
+                <input type="text" class="form-control" id="apellidos" placeholder="Apellidos" name="apellidos">
             </div>
             <div class="mb-3">
-                <label for="">Cantidad:</label>
-                <input type="number" class="form-control" id="cantidad" placeholder="Cantidad" name="cantidad">
+                <label for="">Contraseña:</label>
+                <input type="password" class="form-control" id="pass" placeholder="Contraseña" name="pass">
             </div>
             <div class="mb-3">
-                <label for="">Descripcion:</label>
-                <input type="text" class="form-control" id="descripcion" placeholder="Descripcion" name="descripcion">
+                <label for="">Email:</label>
+                <input type="text" class="form-control" id="email" placeholder="Email" name="email">
             </div>
             <div class="mb-3 row" style="justify-content:center">
-                <button type="submit" class="btn btn-dark col-6" name="updateBtn"
+                <button type="submit" class="btn btn-dark col-6" name="updateUserBtn"
                     onclick="notificarUpdate()">Enviar</button>
-                <div>
+            <div>
         </form>
     </div>
+
+    <div class="container mt-3">
+        <h2>Borrar Usuarios</h2>
+        <h3>Introduzca el id del registro que quiera <strong>borrar</strong></h3>
+        <form action="consultas.php" method="get">
+            <div class="mb-3 mt-3">
+                <label for="">ID:</label>
+                <input type="number" class="form-control" id="id" placeholder="Inserte el ID" name="id">
+            </div>
+            
+            <div class="mb-3 row" style="justify-content:center">
+                <button type="submit" class="btn btn-dark col-6" name="borrarUserBtn">Enviar</button>
+            <div>
+        </form>
+    </div>
+
 </body>
 
 </html>
-
+<?php
+}else{
+    echo"You are not allowed to be here";
+}?>
 <script type="text/javascript">
     $(document).ready(function () {
 
