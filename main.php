@@ -72,8 +72,8 @@ if ($_SESSION['admin'] == 1) {
                     <input type="number" class="form-control" id="cantidad" placeholder="Cantidad" name="cantidad">
                 </div>
                 <div class="mb-3">
-                    <label for="">Descripcion:</label>
-                    <input type="text" class="form-control" id="descripcion" placeholder="Descripcion" name="descripcion">
+                    <label for="">Categoría:</label>
+                    <input type="text" class="form-control" id="descripcion" placeholder="Categoría" name="descripcion">
                 </div>
                 <div class="mb-3 row" style="justify-content:center">
                     <button type="submit" class="btn btn-dark col-6" name="insertBtn">Enviar</button>

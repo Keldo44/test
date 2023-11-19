@@ -67,7 +67,7 @@ if ($_SESSION['admin'] == 1) {
         
         >
             <?php
-            $sql2="SELECT * FROM `usuarios`";
+            $sql2="SELECT * FROM `categorias`";
             $consulta=mysqli_query($con,$sql2);
             while($fila=$consulta->fetch_assoc()){
                 echo "<tr>";

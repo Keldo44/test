@@ -75,7 +75,7 @@ if($_SESSION['admin'] == 1){
       <?php 
       $sort = 'ASC';
       echo"
-      <a href='?order=price&&sort=$sort'>Precio</a>
+      <a href='?order=price&&sort=$sort'>Ordenar por Precio</a>
       ".'
         <table class="table table-dark table-hover">
           <tbody>
@@ -91,20 +91,20 @@ if($_SESSION['admin'] == 1){
             if(isset($_GET['sort'])){
               $sort = $_GET['sort'];
               $order = 'precio';
-              $sql2="SELECT * FROM `productos` ORDER BY $order $sort";
-              buscador($con,$buscador);
+              $sql2="SELECT  *,productos.nombre AS 'pname',productos.id AS 'idp',c.nombre AS 'desc' FROM `productos`, `categoria`AS c where id_category = c.id ORDER BY $order $sort";
+              //buscador($con,$buscador);
             }else{
               //var_dump($_GET['buscador']);
-              $sql2="SELECT * FROM `productos`";
+              $sql2="SELECT  *,productos.nombre AS 'pname',productos.id AS 'idp',c.nombre AS 'desc' FROM `productos`, `categoria`AS c where id_category = c.id";
             }
             $consulta=mysqli_query($con,$sql2);
               while($fila=$consulta->fetch_assoc()){
                   echo "<tr>";
-                  echo "<td>".$fila["id"]."</td>";
-                  echo "<td>".$fila["nombre"]."</td>";
+                  echo "<td>".$fila["idp"]."</td>";
+                  echo "<td>".$fila["pname"]."</td>";
                   echo "<td>".$fila["cantidad"]."</td>";
                   echo "<td>".$fila["precio"]."</td>";
-                  echo "<td>".$fila["id_category"]."</td>";
+                  echo "<td>".$fila["desc"]."</td>";
                   echo "</tr>";
               }
             ?>

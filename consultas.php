@@ -119,7 +119,7 @@ if (!$con) {
           if($nombre){$items = $items.", `nombre`='$nombre' ";}
           if($precio){$items = $items.", `precio` = $precio ";}
           if($cantidad){$items = $items.", `cantidad` = $cantidad ";}
-          if($descripcion){$items = $items.", `descripcion` = $descripcion ";}
+          if($descripcion){$items = $items.", `id_category` = $descripcion ";}
           $items = substr($items, 1);
           $sql = "UPDATE `productos` SET $items WHERE `id` = $id";
           var_dump($sql);
@@ -131,8 +131,8 @@ if (!$con) {
      } elseif (isset($_GET['insertBtn'])) {
 
           mysqli_set_charset($con, "utf8");
-          $sql = "INSERT INTO `productos`(`id`, `nombre`, `precio`, `cantidad`, `descripcion`) 
-                VALUES (NULL,'$nombre',$precio,$cantidad,'$descripcion')";
+          $sql = "INSERT INTO `productos`(`id`, `nombre`, `precio`, `cantidad`, `id_category`) 
+                VALUES (NULL,'$nombre',$precio,$cantidad,$descripcion)";
           $consulta = mysqli_query($con, $sql);
           sleep(2);
           header('Location: main.php');
@@ -219,12 +219,25 @@ if (!$con) {
           $sql = "UPDATE `usuarios` SET $items WHERE `id` = $id";
           var_dump($sql);
           $consulta = mysqli_query($con, $sql);
-          var_dump($consulta);
+          
           sleep(2);
-          //header('Location: main.php');
+          header('Location: main.php');
           exit();
 
-     } elseif (isset($_GET['borrarUserBtn'])) {
+     } elseif (isset($_GET['createUserBtn'])) {
+          
+          mysqli_set_charset($con, "utf8");
+          $pass = sha1($pass);
+          $sql = "INSERT INTO `usuarios` (`usuario`, `admin`, `nombre`, `apellidos`, `pass`, `email`) 
+          VALUES ('$n_usuario', $admin, '$nombre', '$apellidos', '$pass', '$email')";
+          var_dump($sql);
+          $consulta = mysqli_query($con, $sql);
+          
+          sleep(2);
+          header('Location: main.php');
+          exit();
+
+     }  elseif (isset($_GET['borrarUserBtn'])) {
           mysqli_set_charset($con, "utf8");
           $sql = "DELETE FROM `usuarios` WHERE `id` = '$id'";
           $consulta = mysqli_query($con, $sql);
