@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraria Control Pro</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg: #020617;
+            --card-bg: #1e293b;
+            --primary: #3b82f6;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #f8fafc;
+            --text-dim: #64748b;
+            --accent-glow: rgba(59, 130, 246, 0.2);
+            --transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Contenedor Principal con Efecto Glassmorphism */
+        .container {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 32px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            position: relative;
+            transition: var(--transition);
+            z-index: 1;
+        }
+
+        /* Borde de carga animado (solo visible en transición) */
+        .container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: conic-gradient(from 0deg, transparent, var(--primary), transparent);
+            border-radius: 34px;
+            z-index: -1;
+            animation: rotate 2s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .state-loading .container::before { opacity: 1; }
+        .state-loading .content-wrap { filter: blur(4px); opacity: 0.7; pointer-events: none; }
+
+        /* Header & Badge */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            transition: var(--transition);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-dim);
+            transition: var(--transition);
+        }
+
+        /* Colores dinámicos de estado */
+        .online .status-badge { color: var(--success); border-color: rgba(34, 197, 94, 0.3); }
+        .online .dot { background: var(--success); box-shadow: 0 0 15px var(--success); animation: pulse 2s infinite; }
+        
+        .offline .status-badge { color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+        .offline .dot { background: var(--danger); }
+
+        .loading .status-badge { color: var(--warning); border-color: rgba(245, 158, 11, 0.3); }
+        .loading .dot { background: var(--warning); animation: blink 1s infinite; }
+
+        /* Botones Estilizados */
+        .controls { display: grid; gap: 1rem; }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            padding: 1.4rem;
+            font-size: 1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: var(--transition);
+            color: white;
+            background: rgba(255,255,255,0.03);
+        }
+
+        button:hover:not(:disabled) { transform: translateY(-4px); }
+        button:active { transform: translateY(0) scale(0.98); }
+        
+        button:disabled { opacity: 0.1; filter: grayscale(1); cursor: not-allowed; }
+
+        .btn-start { background: linear-gradient(135deg, #22c55e, #10b981); }
+        .btn-start:hover { box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3); }
+
+        .btn-stop { background: linear-gradient(135deg, #ef4444, #f43f5e); }
+        .btn-stop:hover { box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3); }
+
+        .btn-reload {
+            background: rgba(255,255,255,0.05);
+            padding: 12px;
+            border-radius: 14px;
+            color: var(--text-dim);
+        }
+
+        /* Animaciones */
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; }
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        .heartbeat-anim { animation: heartbeat 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.02); }
+            50% { transform: scale(0.98); }
+            100% { transform: scale(1); }
+        }
+
+        .message {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="state-idle">
+
+    <div class="container" id="appCard">
+        <div class="content-wrap">
+            <div class="header">
+                <div id="statusBadge" class="status-badge offline">
+                    <span class="dot"></span>
+                    <span id="statusText">DESCONECTADO</span>
+                </div>
+                <button class="btn-reload" onclick="checkStatus()" id="reloadBtn">
+                    <i data-lucide="refresh-cw"></i>
+                </button>
+            </div>
+
+            <h2 style="margin-bottom: 2rem; font-weight: 900; letter-spacing: -1px; font-size: 1.8rem;">TERRARIA SERVER</h2>
+
+            <div class="controls">
+                <button id="btnStart" class="btn-start" onclick="sendCommand('start')">
+                    <i data-lucide="zap"></i> INICIAR SERVIDOR
+                </button>
+                <button id="btnStop" class="btn-stop" onclick="sendCommand('stop')">
+                    <i data-lucide="power"></i> DETENER PROCESO
+                </button>
+            </div>
+
+            <p id="infoMsg" class="message">SISTEMA LISTO</p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://keldo.cat:5000/exe";
+        let isTransitioning = false;
+
+        async function updateUIState(state, message) {
+            const body = document.body;
+            const badge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            const btnStart = document.getElementById('btnStart');
+            const btnStop = document.getElementById('btnStop');
+            const infoMsg = document.getElementById('infoMsg');
+
+            // Reset classes
+            badge.classList.remove('online', 'offline', 'loading');
+            
+            if (state === 'loading') {
+                body.classList.add('state-loading');
+                badge.classList.add('loading');
+                statusText.innerText = "PROCESANDO...";
+                btnStart.disabled = true;
+                btnStop.disabled = true;
+            } else if (state === 'online') {
+                body.classList.remove('state-loading');
+                badge.classList.add('online');
+                statusText.innerText = "SISTEMA ONLINE";
+                btnStart.disabled = true;
+                btnStop.disabled = false;
+            } else {
+                body.classList.remove('state-loading');
+                badge.classList.add('offline');
+                statusText.innerText = "SISTEMA OFFLINE";
+                btnStart.disabled = false;
+                btnStop.disabled = true;
+            }
+
+            if(message) infoMsg.innerText = message;
+        }
+
+        async function checkStatus() {
+            if (isTransitioning) return;
+            
+            const reloadIcon = document.querySelector('#reloadBtn i');
+            reloadIcon.style.transition = "transform 0.8s ease";
+            reloadIcon.style.transform = "rotate(360deg)";
+
+            try {
+                const response = await fetch(`${API_BASE}?programa=status`);
+                const data = await response.json();
+                updateUIState(data.status === "online" ? 'online' : 'offline');
+            } catch (error) {
+                updateUIState('offline', "ERROR DE CONEXIÓN CON API");
+            } finally {
+                setTimeout(() => { reloadIcon.style.transform = "rotate(0deg)"; }, 800);
+            }
+        }
+
+        async function sendCommand(cmd) {
+            isTransitioning = true;
+            const card = document.getElementById('appCard');
+            
+            card.classList.add('heartbeat-anim');
+            updateUIState('loading', `SOLICITANDO ${cmd.toUpperCase()}...`);
+
+            try {
+                const response = await fetch(`${API_BASE}?programa=${cmd}`);
+                const data = await response.json();
+                
+                // Espera artificial para suavizar la transición y dar tiempo al container
+                setTimeout(async () => {
+                    await checkStatus();
+                    isTransitioning = false;
+                    card.classList.remove('heartbeat-anim');
+                }, 3000);
+
+            } catch (error) {
+                updateUIState('offline', "FALLO EN LA OPERACIÓN");
+                isTransitioning = false;
+                card.classList.remove('heartbeat-anim');
+            }
+        }
+
+        lucide.createIcons();
+        checkStatus();
+        setInterval(checkStatus, 15000);
+    </script>
+</body>
+</html>
