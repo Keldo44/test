@@ -14,7 +14,7 @@
             --warning: #f59e0b;
             --text: #f8fafc;
             --text-dim: #94a3b8;
-            --transition: all 0.4s ease;
+            --transition: all 0.3s ease;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
@@ -45,7 +45,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Badge de Estado Discreto */
         .status-badge {
             display: flex;
             align-items: center;
@@ -67,19 +66,17 @@
             transition: var(--transition);
         }
 
-        /* Colores de Estado */
         .online { color: var(--success); }
         .online .dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
         
         .offline { color: var(--danger); }
         .offline .dot { background: var(--danger); }
 
-        .working { color: var(--warning); }
+        .working { color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
         .working .dot { background: var(--warning); animation: pulse 1s infinite; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* Controles */
         .controls { display: grid; gap: 1rem; }
 
         button {
@@ -107,7 +104,7 @@
         .btn-stop { border: 1px solid rgba(239, 68, 68, 0.2); }
         .btn-stop:hover:not(:disabled) { background: var(--danger); }
 
-        .btn-reload { padding: 8px; background: transparent; color: var(--text-dim); }
+        .btn-reload { padding: 8px; background: transparent; color: var(--text-dim); border: none; }
         .btn-reload:hover { color: var(--text); }
 
         .message {
@@ -116,6 +113,7 @@
             margin-top: 1.5rem;
             text-align: center;
             font-weight: 500;
+            min-height: 1rem;
         }
     </style>
 </head>
@@ -127,7 +125,7 @@
                 <span class="dot"></span>
                 <span id="statusText">CARGANDO...</span>
             </div>
-            <button class="btn-reload" onclick="checkStatus()" id="reloadBtn">
+            <button class="btn-reload" onclick="checkStatus()" id="reloadBtn" title="Refrescar estado">
                 <i data-lucide="refresh-cw" style="width: 18px;"></i>
             </button>
         </div>
@@ -143,12 +141,13 @@
             </button>
         </div>
 
-        <p id="infoMsg" class="message">Sincronizando con el equipo...</p>
+        <p id="infoMsg" class="message">Esperando órdenes...</p>
     </div>
 
     <script>
         const API_BASE = "https://keldo.cat:5000/exe";
         let isProcessing = false;
+        let monitorInterval = null;
 
         function setUIState(state) {
             const badge = document.getElementById('statusBadge');
@@ -164,35 +163,64 @@
                 text.innerText = "TRABAJANDO...";
                 bStart.disabled = true;
                 bStop.disabled = true;
+                startMonitoring(); // Iniciar bucle de alta frecuencia
             } else if (state === 'online') {
                 isProcessing = false;
                 badge.classList.add('online');
                 text.innerText = "EN LÍNEA";
                 bStart.disabled = true;
                 bStop.disabled = false;
+                stopMonitoring(); // Detener bucle
             } else {
                 isProcessing = false;
                 badge.classList.add('offline');
                 text.innerText = "DESCONECTADO";
                 bStart.disabled = false;
                 bStop.disabled = true;
+                stopMonitoring(); // Detener bucle
+            }
+        }
+
+        // Bucle de monitorización (cada 3 segundos)
+        function startMonitoring() {
+            if (monitorInterval) return;
+            console.log("Monitorización activa...");
+            monitorInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}?programa=status`);
+                    const data = await response.json();
+                    
+                    // Si el estado de la API ya no es "working" o ha cambiado al objetivo, actualizamos
+                    if (data.status === "online" || data.status === "offline") {
+                        setUIState(data.status);
+                        document.getElementById('infoMsg').innerText = "Cambio detectado: Servidor " + (data.status === "online" ? "listo" : "detenido");
+                    }
+                } catch (e) {
+                    console.error("Error en monitorización");
+                }
+            }, 3000);
+        }
+
+        function stopMonitoring() {
+            if (monitorInterval) {
+                console.log("Monitorización detenida.");
+                clearInterval(monitorInterval);
+                monitorInterval = null;
             }
         }
 
         async function checkStatus() {
-            if (isProcessing) return;
-            
             const icon = document.querySelector('#reloadBtn i');
             if(icon) icon.style.transform = "rotate(180deg)";
 
             try {
                 const response = await fetch(`${API_BASE}?programa=status`);
                 const data = await response.json();
-                setUIState(data.status === "online" ? 'online' : 'offline');
-                document.getElementById('infoMsg').innerText = "Última actualización: " + new Date().toLocaleTimeString();
+                setUIState(data.status);
+                document.getElementById('infoMsg').innerText = "Estado actualizado manual.";
             } catch (e) {
                 setUIState('offline');
-                document.getElementById('infoMsg').innerText = "Sin conexión con la API";
+                document.getElementById('infoMsg').innerText = "Error de conexión";
             } finally {
                 if(icon) setTimeout(() => icon.style.transform = "rotate(0deg)", 500);
             }
@@ -200,22 +228,20 @@
 
         async function sendCommand(cmd) {
             setUIState('working');
-            document.getElementById('infoMsg').innerText = `Enviando comando: ${cmd}...`;
+            document.getElementById('infoMsg').innerText = `Procesando ${cmd}...`;
 
             try {
+                // Enviamos el comando y nos olvidamos. El monitor se encargará de detectar cuándo termina.
                 await fetch(`${API_BASE}?programa=${cmd}`);
-                // Espera de 4 segundos para que Docker procese el cambio antes de re-comprobar
-                setTimeout(checkStatus, 4000);
             } catch (e) {
-                document.getElementById('infoMsg').innerText = "Error al contactar con el servidor";
+                document.getElementById('infoMsg').innerText = "Error al enviar comando";
                 setUIState('offline');
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            checkStatus();
-            setInterval(checkStatus, 20000);
+            checkStatus(); // Primera carga para saber cómo estamos
         });
     </script>
 </body>
