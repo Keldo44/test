@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraria Server Control</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #3b82f6;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Header & Status */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.5s ease;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-dim);
+        }
+
+        .online .dot { 
+            background: var(--success); 
+            box-shadow: 0 0 12px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        .offline .dot { background: var(--danger); }
+
+        /* Botones Principales */
+        .controls {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 16px;
+            padding: 1.2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:active { transform: scale(0.95); }
+        button:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .btn-start { 
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+        }
+        .btn-start:hover:not(:disabled) { box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5); }
+
+        .btn-stop { 
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        .btn-stop:hover:not(:disabled) { box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5); }
+
+        .btn-reload {
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 12px;
+            color: var(--text-dim);
+        }
+        .btn-reload:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .btn-reload.spinning i { animation: spin 0.8s ease-in-out; }
+
+        /* Animaciones */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .heartbeat-anim { animation: heartbeat 0.4s linear; }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .message {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 1rem;
+            min-height: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="appCard">
+        <div class="header">
+            <div id="statusBadge" class="status-badge offline">
+                <span class="dot"></span>
+                <span id="statusText">DESCONECTADO</span>
+            </div>
+            <button class="btn-reload" onclick="checkStatus()" title="Recargar estado">
+                <i data-lucide="refresh-cw"></i>
+            </button>
+        </div>
+
+        <h2 style="margin-bottom: 2rem; letter-spacing: 1px;">TERRARIA SERVER</h2>
+
+        <div class="controls">
+            <button id="btnStart" class="btn-start" onclick="sendCommand('start')">
+                <i data-lucide="play"></i> ENCENDER
+            </button>
+            <button id="btnStop" class="btn-stop" onclick="sendCommand('stop')">
+                <i data-lucide="square"></i> APAGAR
+            </button>
+        </div>
+
+        <p id="infoMsg" class="message">Esperando órdenes...</p>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_BASE = "http://localhost:5000/exe";
+
+        async function checkStatus() {
+            const badge = document.getElementById('statusBadge');
+            const statusText = document.getElementById('statusText');
+            const btnStart = document.getElementById('btnStart');
+            const btnStop = document.getElementById('btnStop');
+            const reloadBtn = document.querySelector('.btn-reload');
+
+            reloadBtn.classList.add('spinning');
+            
+            try {
+                const response = await fetch(`${API_BASE}?programa=status`);
+                const data = await response.json();
+
+                if (data.status === "online") {
+                    badge.className = "status-badge online";
+                    statusText.innerText = "EN LÍNEA";
+                    btnStart.disabled = true;
+                    btnStop.disabled = false;
+                } else {
+                    badge.className = "status-badge offline";
+                    statusText.innerText = "APAGADO";
+                    btnStart.disabled = false;
+                    btnStop.disabled = true;
+                }
+            } catch (error) {
+                statusText.innerText = "ERROR API";
+                console.error("Error al conectar con la API:", error);
+            } finally {
+                setTimeout(() => reloadBtn.classList.remove('spinning'), 800);
+            }
+        }
+
+        async function sendCommand(cmd) {
+            const card = document.getElementById('appCard');
+            const infoMsg = document.getElementById('infoMsg');
+            
+            // Animación heartbeat al pulsar
+            card.classList.add('heartbeat-anim');
+            setTimeout(() => card.classList.remove('heartbeat-anim'), 400);
+
+            infoMsg.innerText = `Enviando señal de ${cmd}...`;
+
+            try {
+                const response = await fetch(`${API_BASE}?programa=${cmd}`);
+                const data = await response.json();
+                infoMsg.innerText = data.message;
+                
+                // Esperamos un poco a que el proceso arranque/pare y actualizamos estado
+                setTimeout(checkStatus, 2000);
+            } catch (error) {
+                infoMsg.innerText = "Error al ejecutar el comando.";
+            }
+        }
+
+        // Inicializar iconos y estado
+        lucide.createIcons();
+        checkStatus();
+        
+        // Auto-check cada 30 segundos
+        setInterval(checkStatus, 30000);
+    </script>
+</body>
+</html>
